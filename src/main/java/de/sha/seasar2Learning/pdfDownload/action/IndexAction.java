@@ -15,12 +15,44 @@
  */
 package de.sha.seasar2Learning.pdfDownload.action;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
+import javax.annotation.Resource;
+
+import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
+import org.seasar.struts.util.RequestUtil;
+import org.seasar.struts.util.ResponseUtil;
+
+import de.sha.seasar2Learning.pdfDownload.form.RequiredDocumentForm;
 
 public class IndexAction {
-	
+
+	@ActionForm
+	@Resource
+	protected RequiredDocumentForm requiredDocumentForm;
+
     @Execute(validator = false)
 	public String index() {
         return "index.jsp";
+	}
+
+    @Execute(validator = false)
+	public String print() {
+    	RequiredDocumentForm reqForm= (RequiredDocumentForm)RequestUtil.getRequest().getAttribute("requiredDocumentForm");
+    	//下記２つの結果は一緒
+    	System.out.println(reqForm.getMultiBox());
+    	System.out.println(requiredDocumentForm.getMultiBox());
+
+    	InputStream is;
+		try {
+			is = new FileInputStream("c:/test.pdf");
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException();
+		}
+    	ResponseUtil.download("download.pdf", is);
+    	return null;
 	}
 }
