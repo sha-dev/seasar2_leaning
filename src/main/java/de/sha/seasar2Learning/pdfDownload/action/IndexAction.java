@@ -15,11 +15,14 @@
  */
 package de.sha.seasar2Learning.pdfDownload.action;
 
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
@@ -40,19 +43,38 @@ public class IndexAction {
 	}
 
     @Execute(validator = false)
-	public String print() {
+	public String print() throws IOException {
     	RequiredDocumentForm reqForm= (RequiredDocumentForm)RequestUtil.getRequest().getAttribute("requiredDocumentForm");
     	//下記２つの結果は一緒
     	System.out.println(reqForm.getMultiBox());
     	System.out.println(requiredDocumentForm.getMultiBox());
+    	final String INPUT_FILE_NAME = "C:/test.pdf";
+    	final String OUTPUT_FILE_NAME = "download.pdf";
 
-    	InputStream is;
 		try {
-			is = new FileInputStream("c:/test.pdf");
+			HttpServletResponse res = ResponseUtil.getResponse();
+	    	res.setContentType("application/pdf");
+	    	// inlineが直接開く、attachmentはダウンロード。初期値はattachment。
+			res.setHeader("Content-Disposition", "inline; filename=\"" + OUTPUT_FILE_NAME + "\"");
+			InputStream is = new FileInputStream(INPUT_FILE_NAME);
+
+	        BufferedOutputStream out = new BufferedOutputStream(res.getOutputStream());
+
+            byte buf[] = new byte[1024];
+            int len;
+            while ((len = is.read(buf)) != -1) {
+                out.write(buf, 0, len);
+            }
+            out.flush();
+
+	    	//ResponseUtil.download(OUTPUT_FILE_NAME, is);
+            // これを使うと便利そうだけど、responseHeaderへの値の更新などが無視される？
+
+            out.close();
+	    	is.close();
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException();
 		}
-    	ResponseUtil.download("download.pdf", is);
     	return null;
 	}
 }
