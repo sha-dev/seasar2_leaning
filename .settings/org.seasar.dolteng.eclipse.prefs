@@ -1,0 +1,8 @@
+DaoType=S2JDBC
+DefaultResourcePath=/seasar2_learning/src/main/resources
+DefaultRootPackage=de.sha.seasar2Learning.pdfDownload
+DefaultSrcPath=/seasar2_learning/src/main/java
+ServletPath=seasar2_learning
+ViewType=SA-Struts
+WebContentsRoot=src/main/webapp
+eclipse.preferences.version=1
